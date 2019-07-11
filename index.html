@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="The HTML5 Herald">
+    <meta name="author" content="SitePoint">
+
+    <link rel="stylesheet" href="css/styles.css?v=1.0">
+
+</head>
+
+<body>
+<form>
+    <input id="optionalServices">
+    <button>Discover services & characteristics</button>
+</form>
+<script>
+	document.querySelector('form').addEventListener('submit', function(event) {
+		event.stopPropagation();
+		event.preventDefault();
+        onButtonClick();
+	});
+		function onButtonClick() {
+			// Validate services UUID entered by user first.
+			console.log('Requesting any Bluetooth Device...');
+			window.navigator.bluetooth.requestDevice({
+                filters: [
+                  {services: ["00000000-0000-0000-0000-000000000001", "00756c74-7261-6c69-6768-74206265616d"]}
+                ],
+				acceptAllDevices: false,
+    			})
+				.then(device => {
+					console.log('Connecting to GATT Server...');
+					return device.gatt.connect();
+				})
+				.then(server => {
+					// Note that we could also get all services that match a specific UUID by
+					// passing it to getPrimaryServices().
+					console.log('Getting Services...');
+					return server.getPrimaryServices();
+				})
+				.then(services => {
+					console.log('Getting Characteristics...');
+					let queue = Promise.resolve();
+					services.forEach(service => {
+						queue = queue.then(_ => service.getCharacteristics().then(characteristics => {
+                        console.log('> Service: ' + service.uuid);
+							characteristics.forEach(characteristic => {
+                                console.log('>> Characteristic: ' + characteristic.uuid + ' ' +
+									getSupportedProperties(characteristic));
+							});
+						}));
+					});
+					return queue;
+				})
+				.catch(error => {
+                    console.log('Argh! ' + error);
+				});
+		}
+
+		/* Utils */
+
+		function getSupportedProperties(characteristic) {
+			let supportedProperties = [];
+			for (const p in characteristic.properties) {
+				if (characteristic.properties[p] === true) {
+					supportedProperties.push(p.toUpperCase());
+				}
+			}
+			return '[' + supportedProperties.join(', ') + ']';
+		}
+
+</script>
+</body>
+</html>
