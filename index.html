@@ -8,8 +8,6 @@
     <meta name="description" content="The HTML5 Herald">
     <meta name="author" content="SitePoint">
 
-    <link rel="stylesheet" href="css/styles.css?v=1.0">
-
 </head>
 
 <body>
@@ -28,7 +26,7 @@
 			console.log('Requesting any Bluetooth Device...');
 			window.navigator.bluetooth.requestDevice({
                 filters: [
-                  {services: ["00000000-0000-0000-0000-000000000001", "00756c74-7261-6c69-6768-74206265616d"]}
+                  {services: ["1BEAC099-BEAC-BEAC-BEAC-BEAC09BEAC09"]}
                 ],
 				acceptAllDevices: false,
     			})
